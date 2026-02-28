@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Waves
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Insights
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.SelfImprovement
@@ -51,6 +52,8 @@ import dev.pranav.reef.timer.TimerConfig
 import dev.pranav.reef.timer.TimerContent
 import dev.pranav.reef.timer.TimerStateManager
 import dev.pranav.reef.ui.ReefTheme
+import dev.pranav.reef.ui.focusstats.FocusSessionDetailScreen
+import dev.pranav.reef.ui.focusstats.FocusStatsScreen
 import dev.pranav.reef.util.*
 
 class MainActivity: ComponentActivity() {
@@ -431,6 +434,14 @@ class MainActivity: ComponentActivity() {
                                                     )
                                                 )
                                             },
+                                            actions = {
+                                                IconButton(onClick = { navController.navigate(Screen.FocusStats) }) {
+                                                    Icon(
+                                                        Icons.Outlined.Insights,
+                                                        contentDescription = "Focus Stats"
+                                                    )
+                                                }
+                                            },
                                             colors = TopAppBarDefaults.topAppBarColors(
                                                 containerColor = Color.Transparent
                                             ),
@@ -615,6 +626,23 @@ class MainActivity: ComponentActivity() {
                                         settingsScreen()
                                     }
                                 }
+                            }
+
+                            composable<Screen.FocusStats> {
+                                FocusStatsScreen(
+                                    onBackPressed = { navController.popBackStack() },
+                                    onSessionClick = { id ->
+                                        navController.navigate(Screen.FocusSessionDetail(id))
+                                    }
+                                )
+                            }
+
+                            composable<Screen.FocusSessionDetail> { backStackEntry ->
+                                val route = backStackEntry.toRoute<Screen.FocusSessionDetail>()
+                                FocusSessionDetailScreen(
+                                    sessionId = route.sessionId,
+                                    onBackPressed = { navController.popBackStack() }
+                                )
                             }
                         }
                     }

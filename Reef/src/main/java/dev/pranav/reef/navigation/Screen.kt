@@ -30,4 +30,10 @@ sealed class Screen {
 
     @Serializable
     data object Intro: Screen()
+
+    @Serializable
+    data object FocusStats: Screen()
+
+    @Serializable
+    data class FocusSessionDetail(val sessionId: String): Screen()
 }

@@ -7,40 +7,33 @@
 
 package org.nsh07.pomodoro.ui.statsScreen
 
-import android.graphics.Path
-import android.graphics.RectF
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberBottom
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
-import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
-import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
-import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
-import com.patrykandpatrick.vico.compose.cartesian.rememberVicoZoomState
+import com.patrykandpatrick.vico.compose.cartesian.*
+import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
+import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
+import com.patrykandpatrick.vico.compose.cartesian.layer.*
+import com.patrykandpatrick.vico.compose.common.Fill
+import com.patrykandpatrick.vico.compose.common.MarkerCornerBasedShape
 import com.patrykandpatrick.vico.compose.common.ProvideVicoTheme
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
-import com.patrykandpatrick.vico.compose.common.fill
 import com.patrykandpatrick.vico.compose.m3.common.rememberM3VicoTheme
-import com.patrykandpatrick.vico.core.cartesian.Scroll
-import com.patrykandpatrick.vico.core.cartesian.Zoom
-import com.patrykandpatrick.vico.core.cartesian.axis.HorizontalAxis
-import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
-import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
-import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
-import com.patrykandpatrick.vico.core.cartesian.layer.ColumnCartesianLayer
-import com.patrykandpatrick.vico.core.common.Fill
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -75,31 +68,9 @@ internal fun TimeColumnChart(
                         ColumnCartesianLayer.ColumnProvider.series(
                             dataValues.indices.map { _ ->
                                 rememberLineComponent(
-                                    fill = fill(primaryColor),
+                                    fill = Fill(primaryColor),
                                     thickness = thickness,
-                                    shape = { _, path, left, top, right, bottom ->
-                                        if (top + radius <= bottom - radius) {
-                                            path.arcTo(
-                                                RectF(left, top, right, top + 2 * radius),
-                                                180f,
-                                                180f
-                                            )
-                                            path.lineTo(right, bottom - radius)
-                                            path.arcTo(
-                                                RectF(left, bottom - 2 * radius, right, bottom),
-                                                0f,
-                                                180f
-                                            )
-                                            path.close()
-                                        } else {
-                                            path.addCircle(
-                                                left + radius,
-                                                bottom - radius,
-                                                radius,
-                                                Path.Direction.CW
-                                            )
-                                        }
-                                    }
+                                    shape = MarkerCornerBasedShape(RoundedCornerShape(16.dp))
                                 )
                             }
                         ),
@@ -163,6 +134,59 @@ internal fun TimeColumnChart(
                         Modifier
                     }
                 )
+        )
+    }
+}
+
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+internal fun TimeLineChart(
+    modelProducer: CartesianChartModelProducer,
+    modifier: Modifier = Modifier,
+    xValueFormatter: CartesianValueFormatter = CartesianValueFormatter.decimal(),
+    yValueFormatter: CartesianValueFormatter = CartesianValueFormatter.decimal(),
+    animationSpec: AnimationSpec<Float>? = motionScheme.slowEffectsSpec(),
+    dataValues: List<Float> = emptyList(),
+) {
+    if (dataValues.isEmpty()) return
+
+    val primaryColor = MaterialTheme.colorScheme.primary
+
+    val areaBrush = remember(primaryColor) {
+        Brush.verticalGradient(
+            listOf(
+                primaryColor.copy(alpha = 0.4f),
+                Color.Transparent
+            )
+        )
+    }
+
+    ProvideVicoTheme(rememberM3VicoTheme()) {
+        CartesianChartHost(
+            chart = rememberCartesianChart(
+                rememberLineCartesianLayer(
+                    lineProvider = LineCartesianLayer.LineProvider.series(
+                        LineCartesianLayer.rememberLine(
+                            fill = LineCartesianLayer.LineFill.single(Fill(primaryColor)),
+                            areaFill = LineCartesianLayer.AreaFill.single(Fill(areaBrush)),
+                            pointConnector = LineCartesianLayer.PointConnector.cubic(),
+                        )
+                    ),
+                ),
+                startAxis = VerticalAxis.rememberStart(
+                    valueFormatter = yValueFormatter
+                ),
+                bottomAxis = HorizontalAxis.rememberBottom(
+                    guideline = null,
+                    valueFormatter = xValueFormatter
+                ),
+            ),
+            modelProducer = modelProducer,
+            zoomState = rememberVicoZoomState(zoomEnabled = false),
+            scrollState = rememberVicoScrollState(scrollEnabled = true),
+            animationSpec = animationSpec,
+            modifier = modifier
         )
     }
 }

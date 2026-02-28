@@ -7,20 +7,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import dev.pranav.reef.R
 import dev.pranav.reef.routine.Routines
 import dev.pranav.reef.scheduleWatcher
-import dev.pranav.reef.util.BLOCKER_CHANNEL_ID
+import dev.pranav.reef.util.*
 import dev.pranav.reef.util.NotificationHelper.createNotificationChannel
-import dev.pranav.reef.util.Whitelist
-import dev.pranav.reef.util.isPrefsInitialized
-import dev.pranav.reef.util.prefs
 
 @SuppressLint("AccessibilityPolicy")
 class BlockerService: AccessibilityService() {
@@ -47,12 +44,11 @@ class BlockerService: AccessibilityService() {
             prefs = deviceContext.getSharedPreferences("prefs", MODE_PRIVATE)
         }
 
-        val filter = IntentFilter(Routines.ACTION_CHANGED)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            registerReceiver(routineChangeReceiver, filter, RECEIVER_NOT_EXPORTED)
-        } else {
-            registerReceiver(routineChangeReceiver, filter)
-        }
+        ContextCompat.registerReceiver(
+            this, routineChangeReceiver,
+            IntentFilter(Routines.ACTION_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
 
         scheduleWatcher(this)
     }
@@ -125,6 +121,8 @@ class BlockerService: AccessibilityService() {
 
     @SuppressLint("MissingPermission")
     private fun showFocusModeNotification(pkg: String) {
+        FocusStats.recordBlockEvent(pkg, "focus_mode")
+
         if (NotificationManagerCompat.from(this).areNotificationsEnabled().not()) return
         if (!prefs.getBoolean("focus_reminders", true)) return
 

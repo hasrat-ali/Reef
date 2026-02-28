@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,6 +27,7 @@ import androidx.core.content.edit
 import dev.pranav.reef.AboutActivity
 import dev.pranav.reef.R
 import dev.pranav.reef.ui.about.DonateButton
+import dev.pranav.reef.util.FocusStats
 import dev.pranav.reef.util.prefs
 
 @Composable
@@ -35,6 +37,8 @@ fun MainSettingsContent(
     val context = LocalContext.current
     val resources = LocalResources.current
     var enableDND by remember { mutableStateOf(prefs.getBoolean("enable_dnd", false)) }
+    var showGenerateConfirm by remember { mutableStateOf(false) }
+    var showClearConfirm by remember { mutableStateOf(false) }
 
     val menuItems = listOf(
         SettingsMenuItem(
@@ -138,6 +142,119 @@ fun MainSettingsContent(
             Spacer(modifier = Modifier.height(16.dp))
             DonateButton()
         }
+
+        item {
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp, horizontal = 8.dp))
+        }
+
+        item {
+            Text(
+                text = "Developer",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+
+        item {
+            SettingsCard(index = 0, listSize = 2) {
+                ListItem(
+                    modifier = Modifier
+                        .clickable { showGenerateConfirm = true }
+                        .padding(4.dp),
+                    leadingContent = {
+                        Icon(Icons.Rounded.BugReport, contentDescription = null)
+                    },
+                    headlineContent = {
+                        Text(
+                            "Generate focus sample data",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    },
+                    supportingContent = {
+                        Text(
+                            "Populate 3 months of fake sessions to preview stats",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+            }
+        }
+
+        item {
+            SettingsCard(index = 1, listSize = 2) {
+                ListItem(
+                    modifier = Modifier
+                        .clickable { showClearConfirm = true }
+                        .padding(4.dp),
+                    leadingContent = {
+                        Icon(
+                            Icons.Rounded.BugReport, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    headlineContent = {
+                        Text(
+                            "Clear all focus data", style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    supportingContent = {
+                        Text(
+                            "Permanently deletes all recorded focus sessions",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            DonateButton()
+        }
+    }
+
+    if (showGenerateConfirm) {
+        AlertDialog(
+            onDismissRequest = { showGenerateConfirm = false },
+            title = { Text("Generate sample data?") },
+            text = { Text("This will add up to ~180 fake focus sessions spread across the last 3 months. Your real data is preserved.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    FocusStats.generateSampleData()
+                    showGenerateConfirm = false
+                }) { Text("Generate") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showGenerateConfirm = false }) { Text("Cancel") }
+            }
+        )
+    }
+
+    if (showClearConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirm = false },
+            title = { Text("Clear all focus data?") },
+            text = { Text("This permanently deletes every recorded focus session. This cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        FocusStats.clearAllData()
+                        showClearConfirm = false
+                    },
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Clear")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirm = false }) { Text("Cancel") }
+            }
+        )
     }
 }
 

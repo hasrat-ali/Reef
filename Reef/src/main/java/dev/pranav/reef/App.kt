@@ -10,10 +10,7 @@ import androidx.work.*
 import com.google.android.material.color.DynamicColors
 import dev.pranav.reef.accessibility.BlockerService
 import dev.pranav.reef.receivers.DailySummaryScheduler
-import dev.pranav.reef.util.AppLimits
-import dev.pranav.reef.util.ReefWorker
-import dev.pranav.reef.util.Whitelist
-import dev.pranav.reef.util.prefs
+import dev.pranav.reef.util.*
 import java.util.concurrent.TimeUnit
 
 class App: Application(), Configuration.Provider {
@@ -32,6 +29,7 @@ class App: Application(), Configuration.Provider {
 
         AppLimits.init(this)
         Whitelist.init(this)
+        FocusStats.init(this)
 
         scheduleWatcher(this)
 

@@ -19,6 +19,8 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import dev.pranav.reef.MainActivity
 import dev.pranav.reef.R
+import dev.pranav.reef.data.PhaseType
+import dev.pranav.reef.data.SessionType
 import dev.pranav.reef.timer.PomodoroConfig
 import dev.pranav.reef.timer.PomodoroPhase
 import dev.pranav.reef.timer.TimerSessionState
@@ -139,6 +141,9 @@ class FocusModeService: Service() {
             }
         }
 
+        FocusStats.startSession(if (isPomodoroMode) SessionType.POMODORO else SessionType.SIMPLE)
+        FocusStats.startPhase(PhaseType.FOCUS, focusTimeMillis)
+
         prefs.edit { putBoolean("focus_mode", true) }
 
         enableDNDIfNeeded()
@@ -232,6 +237,14 @@ class FocusModeService: Service() {
     private fun restartCurrentPhase() {
         countDownTimer?.cancel()
 
+        val currentPhaseType = when (TimerStateManager.state.value.pomodoroPhase) {
+            PomodoroPhase.SHORT_BREAK -> PhaseType.SHORT_BREAK
+            PomodoroPhase.LONG_BREAK -> PhaseType.LONG_BREAK
+            else -> PhaseType.FOCUS
+        }
+        FocusStats.endPhase(isCompleted = false)
+        FocusStats.startPhase(currentPhaseType, initialDuration)
+
         TimerStateManager.updateState {
             copy(
                 timeRemaining = initialDuration,
@@ -284,6 +297,8 @@ class FocusModeService: Service() {
 
         prefs.edit { putBoolean("focus_mode", false) }
 
+        FocusStats.endSession(isCompleted = true)
+
         broadcastTimerUpdate("00:00")
         TimerStateManager.reset()
         restoreDND()
@@ -297,6 +312,8 @@ class FocusModeService: Service() {
 
         val nextPhase = calculateNextPhase(state, config)
 
+        FocusStats.endPhase(isCompleted = true)
+
         if (nextPhase.isComplete) {
             prefs.edit {
                 putBoolean("pomodoro_mode", false)
@@ -306,13 +323,18 @@ class FocusModeService: Service() {
             return
         }
 
+        val nextPhaseType = when (nextPhase.phase) {
+            PomodoroPhase.SHORT_BREAK -> PhaseType.SHORT_BREAK
+            PomodoroPhase.LONG_BREAK -> PhaseType.LONG_BREAK
+            else -> PhaseType.FOCUS
+        }
+
         val shouldAutoStart = when (nextPhase.phase) {
             PomodoroPhase.FOCUS -> prefs.getBoolean("auto_start_pomodoros", false)
             PomodoroPhase.SHORT_BREAK, PomodoroPhase.LONG_BREAK -> prefs.getBoolean(
                 "auto_start_breaks",
                 true
             )
-
             else -> false
         }
 
@@ -326,13 +348,13 @@ class FocusModeService: Service() {
             )
         }
 
-        // Store current cycle for persistence
         prefs.edit {
             putInt("pomodoro_current_cycle", nextPhase.currentCycle)
             putBoolean("focus_mode", shouldAutoStart && nextPhase.phase == PomodoroPhase.FOCUS)
         }
 
         initialDuration = nextPhase.duration
+        FocusStats.startPhase(nextPhaseType, nextPhase.duration)
 
         if (nextPhase.phase == PomodoroPhase.FOCUS) {
             if (shouldAutoStart) {
@@ -605,8 +627,11 @@ class FocusModeService: Service() {
         notificationManager.cancel(NOTIFICATION_ID)
         restoreDND()
 
-        prefs.edit { putBoolean("focus_mode", false) }
+        if (FocusStats.activeSession != null) {
+            FocusStats.endSession(isCompleted = false)
+        }
 
+        prefs.edit { putBoolean("focus_mode", false) }
         TimerStateManager.reset()
     }
 }
