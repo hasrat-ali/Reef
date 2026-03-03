@@ -2,6 +2,7 @@ package dev.pranav.reef.util
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.os.Process
 import androidx.core.content.edit
 import java.time.LocalDate
 import java.time.ZoneId
@@ -30,8 +31,6 @@ object AppLimits {
     fun getLimit(pkg: String): Long = limits[pkg] ?: 0L
 
     fun hasLimit(pkg: String): Boolean = limits.containsKey(pkg)
-
-    fun getLimitedAppsCount(): Int = limits.size
 
     fun removeLimit(pkg: String) {
         limits.remove(pkg)
@@ -68,6 +67,14 @@ object Whitelist {
 
         if (sharedPreferences.all.isEmpty()) {
             whitelistAll(allowedApps)
+
+            // Whitelist all system apps by default
+            context.packageManager.getInstalledPackages(Process.myUserHandle().hashCode())
+                .forEach { pkgInfo ->
+                    if ((pkgInfo.applicationInfo!!.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0) {
+                        whitelist(pkgInfo.packageName)
+                    }
+                }
         }
 
         // Whitelist all installed input methods (keyboards)
@@ -138,10 +145,6 @@ object Whitelist {
         sharedPreferences.edit { putBoolean(packageName, false) }
     }
 
-    fun getWhitelistedCount(): Int {
-        return sharedPreferences.all.count { it.value == true }
-    }
-
     fun getWhitelistedLaunchableCount(launcherApps: android.content.pm.LauncherApps): Int {
         val launchablePackages =
             launcherApps.getActivityList(null, android.os.Process.myUserHandle())
@@ -155,22 +158,6 @@ object Whitelist {
     val allowedApps = hashSetOf(
         "dev.pranav.reef",
         "dev.pranav.applock",
-
-        "com.android.systemui",
-        "com.android.systemui.accessibility.accessibilitymenu",
-        "com.android.settings",
-        "com.android.calculator2",
-        "com.android.mms",
-        "com.android.phone",
-        "com.android.camera",
-        "com.android.camera2",
-        "com.android.dreams.basic",
-        "com.android.bluetooth",
-        "com.android.emergency",
-        "com.android.companiondevicemanager",
-
-        "com.android.providers.downloads.ui",
-        "com.google.android.providers.media.module",
 
         "com.google.android.deskclock",
         "com.google.android.calendar",
@@ -191,18 +178,10 @@ object Whitelist {
         "com.google.android.apps.classroom",
         "com.google.android.apps.giant",
         "com.google.android.apps.tachyon",
-        "com.google.android.webview",
-        "com.google.android.packageinstaller",
-        "com.google.android.gms",
-        "com.google.android.googlequicksearchbox",
-        "com.google.android.settings.intelligence",
-        "com.google.android.projection.gearhead",
 
         "app.revanced.android.gms", // MicroG / ReVanced GMS
         "net.osmand",
         "com.fsck.k9",
-        "com.google.android.apps.wellbeing",
-        "com.android.documentsui",
         "bin.mt.plus.canary",
         "com.sadellie.calculator",
         "com.lineageos.aperture.dev",
@@ -219,11 +198,5 @@ object Whitelist {
         "com.paypal.android.p2pmobile",
         "com.google.android.apps.nbu.paisa.user",
         "com.fampay.in",
-        "com.google.android.marvin.talkback",
-
-        // OEM apps
-        "com.motorola.dynamicvolume",
-        "com.motorola.camera3",
-        "com.motorola.dolby.dolbyui",
     )
 }

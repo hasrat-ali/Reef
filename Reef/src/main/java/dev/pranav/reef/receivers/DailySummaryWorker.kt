@@ -71,7 +71,6 @@ class DailySummaryWorker(
         val notification = NotificationCompat.Builder(context, REMINDER_CHANNEL_ID)
             .setContentTitle(context.getString(R.string.daily_summary_title))
             .setContentText(context.getString(R.string.daily_summary_message, usageText))
-            .setSmallIcon(R.drawable.round_schedule_24)
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

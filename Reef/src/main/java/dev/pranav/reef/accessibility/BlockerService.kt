@@ -13,6 +13,7 @@ import dev.pranav.reef.R
 import dev.pranav.reef.scheduleWatcher
 import dev.pranav.reef.services.routines.RoutineSessionManager
 import dev.pranav.reef.util.*
+import dev.pranav.reef.util.NotificationHelper.BLOCKER_GROUP_KEY
 import dev.pranav.reef.util.NotificationHelper.createNotificationChannel
 import dev.pranav.reef.util.NotificationHelper.syncRoutineNotification
 
@@ -74,7 +75,8 @@ class BlockerService: AccessibilityService() {
 
     @SuppressLint("MissingPermission")
     private fun showBlockedNotification(pkg: String, reason: UsageTracker.BlockReason) {
-        if (NotificationManagerCompat.from(this).areNotificationsEnabled().not()) {
+        val manager = NotificationManagerCompat.from(this)
+        if (manager.areNotificationsEnabled().not()) {
             Log.w("BlockerService", "Notifications disabled by user")
             return
         }
@@ -99,10 +101,18 @@ class BlockerService: AccessibilityService() {
             .setContentTitle(getString(R.string.app_blocked))
             .setContentText(contentText)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setGroup(BLOCKER_GROUP_KEY)
             .setAutoCancel(true)
             .build()
 
-        NotificationManagerCompat.from(this).notify(pkg.hashCode(), notification)
+        val summary = NotificationCompat.Builder(this, BLOCKER_CHANNEL_ID)
+            .setSmallIcon(R.drawable.round_hourglass_disabled_24)
+            .setGroup(BLOCKER_GROUP_KEY)
+            .setGroupSummary(true)
+            .build()
+
+        manager.notify(pkg.hashCode(), notification)
+        manager.notify(NotificationHelper.BLOCKER_SUMMARY_ID, summary)
     }
 
     @SuppressLint("MissingPermission")

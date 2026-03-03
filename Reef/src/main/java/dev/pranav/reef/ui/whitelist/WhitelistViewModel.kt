@@ -1,8 +1,8 @@
 package dev.pranav.reef.ui.whitelist
 
-import android.Manifest
 import android.content.pm.LauncherApps
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Process
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -39,20 +39,31 @@ class WhitelistViewModel(
                     .distinctBy { it.applicationInfo.packageName }
                     .associate { it.applicationInfo.packageName to it.applicationInfo }
 
-                val overlayPackages = packageManager
-                    .getInstalledPackages(PackageManager.GET_PERMISSIONS)
-                    .filter { it.requestedPermissions?.contains(Manifest.permission.SYSTEM_ALERT_WINDOW) == true }
-                    .mapNotNull { pkgInfo ->
-                        runCatching {
-                            packageManager.getApplicationInfo(
-                                pkgInfo.packageName,
-                                0
-                            )
-                        }.getOrNull()
+                val systemApps =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                        launcherApps.getPreInstalledSystemPackages(Process.myUserHandle())
+                            .mapNotNull {
+                                runCatching {
+                                    packageManager.getApplicationInfo(
+                                        it,
+                                        0
+                                    )
+                                }.getOrNull()
+                            }.associateBy { it.packageName }
+                    } else {
+                        packageManager
+                            .getInstalledPackages(PackageManager.GET_PERMISSIONS)
+                            .mapNotNull { pkgInfo ->
+                                runCatching {
+                                    packageManager.getApplicationInfo(
+                                        pkgInfo.packageName,
+                                        0
+                                    )
+                                }.getOrNull()
+                            }.associateBy { it.packageName }
                     }
-                    .associate { it.packageName to it }
 
-                (launcherPackages + overlayPackages)
+                (launcherPackages + systemApps)
                     .filterKeys { it != currentPackageName }
                     .values
                     .map { appInfo ->

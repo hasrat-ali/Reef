@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
 import android.view.ContextThemeWrapper
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -19,6 +18,9 @@ import dev.pranav.reef.services.routines.RoutineSessionManager
 object NotificationHelper {
     const val ROUTINE_STATUS_NOTIFICATION_ID = 5001
     private const val REMINDER_NOTIFICATION_ID = 200
+
+    const val BLOCKER_GROUP_KEY = "dev.pranav.reef.BLOCKER_GROUP"
+    const val BLOCKER_SUMMARY_ID = 5000
 
     fun Context.createNotificationChannel() {
         val notificationManager =
@@ -103,8 +105,6 @@ object NotificationHelper {
         }
 
         val notification = NotificationCompat.Builder(context, ROUTINE_STATUS_CHANNEL_ID)
-            .setSmallIcon(R.drawable.round_schedule_24)
-            .setLargeIcon(null as Bitmap?)
             .setContentTitle(context.getString(R.string.routines))
             .setContentText(contentText)
             .setOngoing(true)

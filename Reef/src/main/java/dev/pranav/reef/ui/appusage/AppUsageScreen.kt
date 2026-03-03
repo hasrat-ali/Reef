@@ -183,7 +183,7 @@ fun AppUsageScreen(
                     }
                 }
 
-                item { Spacer(Modifier.height(32.dp)) }
+                item { Spacer(Modifier.height(16.dp)) }
             }
         }
     }
