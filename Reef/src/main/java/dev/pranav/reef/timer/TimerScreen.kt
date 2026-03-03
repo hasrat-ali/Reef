@@ -61,19 +61,35 @@ fun TimerContent(
     onRestartTimer: () -> Unit
 ) {
     val showRunningView = isTimerRunning || isPaused
+    var selectedMode by remember { mutableIntStateOf(0) }
 
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val setupScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val runningScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
+
+    val scrollBehavior = if (showRunningView) runningScrollBehavior else setupScrollBehavior
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         contentWindowInsets = WindowInsets(0),
         topBar = {
+
             LargeTopAppBar(
                 title = {
-                    Text(
-                        stringResource(R.string.focus_mode_title)
-                    )
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.focus_mode_title)
+                        )
+
+                        if (!showRunningView) {
+                            FocusModeGroup(
+                                selectedMode = selectedMode,
+                                onSelectionChange = { selectedMode = it })
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+                    }
                 },
                 actions = {
                     IconButton(onClick = { navController.navigate(Screen.FocusStats) }) {
@@ -90,12 +106,10 @@ fun TimerContent(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp)
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
         ) {
             AnimatedContent(targetState = showRunningView) { running ->
                 if (running) {
@@ -110,7 +124,24 @@ fun TimerContent(
                         onRestart = onRestartTimer
                     )
                 } else {
-                    FocusTimerSetupView(onStart = onStartTimer)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp)
+                    ) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                if (selectedMode == 0) {
+                                    SimpleFocusSetup(onStartTimer)
+                                } else {
+                                    PomodoroFocusSetup(onStartTimer)
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -149,24 +180,6 @@ fun TimerScreen(
             onCancelTimer = onCancelTimer,
             onRestartTimer = onRestartTimer
         )
-    }
-}
-
-@Composable
-fun FocusTimerSetupView(onStart: (TimerConfig) -> Unit) {
-    var selectedMode by remember { mutableIntStateOf(0) }
-
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Spacer(modifier = Modifier.height(16.dp))
-        FocusModeGroup(selectedMode = selectedMode, onSelectionChange = { selectedMode = it })
-
-        Box(modifier = Modifier.fillMaxWidth()) {
-            if (selectedMode == 0) {
-                SimpleFocusSetup(onStart)
-            } else {
-                PomodoroFocusSetup(onStart)
-            }
-        }
     }
 }
 
@@ -771,6 +784,7 @@ fun RunningTimerView(
             RunningTimerActions(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
                     .fillMaxWidth(0.95f),
                 isPaused = isPaused,
                 onPause = onPause,
@@ -884,13 +898,15 @@ fun TimerScreenPreview() {
 @Composable
 fun RunningTimerScreenPreview() {
     MaterialTheme {
-        Text(
-            text = "25:69",
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            fontFamily = DMSerif,
-            fontSize = 88.sp,
-            color = MaterialTheme.colorScheme.onSurface
+        RunningTimerView(
+            timeLeft = "12:34",
+            timerState = "FOCUS",
+            isPaused = false,
+            isStrictMode = false,
+            onPause = {},
+            onResume = {},
+            onCancel = {},
+            onRestart = {}
         )
     }
 }
