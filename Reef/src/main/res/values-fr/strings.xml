@@ -318,4 +318,13 @@
     </plurals>
     <string name="schedule_from_to">" de %1$s à %2$s"</string>
     <string name="weekdays">Jours de semaine</string>
+    <string name="get_started">Commencez</string>
+    <string name="settings">Réglages</string>
+    <string name="weekly_overview">Mensuel</string>
+    <string name="edit">Edit</string>
+    <string name="notification_continue">Continuer</string>
+    <string name="nav_settings">Réglages</string>
+    <string name="cancel">Annuler</string>
+    <string name="delete">Supprimer</string>
+    <string name="set_limits_label">Définir la limite</string>
 </resources>
