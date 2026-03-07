@@ -322,4 +322,5 @@
     <string name="app_usage_statistics">App Usage Statistics</string>
     <string name="app_usage_statistics_description">Utilizamos el permiso de las estadísticas de uso de aplicaciones para ayudar a controlar el tiempo de pantalla. Ningún dato deja tu dispositivo.</string>
     <string name="notification_permission">Permiso de notificación</string>
+    <string name="weekly">Semanal</string>
 </resources>
