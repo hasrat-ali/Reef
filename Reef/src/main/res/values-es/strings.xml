@@ -231,4 +231,6 @@
     <string name="nav_stats">Estadísticas</string>
     <string name="nav_focus">Concentración</string>
     <string name="nav_settings">Ajustes</string>
+    <string name="focus_mode">Modo concentración</string>
+    <string name="select_apps_label">Seleccionar app</string>
 </resources>
