@@ -1,3 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="accessibility_service_name">Reef-Dienst</string>
+    <string name="app_description">Reef ist eine Open Source Produktivitätsapp, die dir helfen soll deine Bildschirmzeit zu reduzieren und deine Produktivität zu steigern.</string>
+    <string name="schedule">Zeitpläne</string>
+    <string name="monday">Montag</string>
+    <string name="tuesday">Dienstag</string>
+    <string name="wednesday">Mittwoch</string>
+    <string name="thursday">Donnerstag</string>
+    <string name="friday">Freitag</string>
+    <string name="saturday">Samstag</string>
+    <string name="sunday">Sonntag</string>
+    <string name="general_section">Allgemein</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="ok">OK</string>
+    <string name="focus_label">Fokus</string>
+    <string name="paused_status">Pausiert</string>
+    <string name="resume">Alle fortsetzen</string>
+    <string name="pause">Alle pausieren</string>
+    <string name="stop">Stopp</string>
+    <string name="notification_pause">Alle pausieren</string>
+    <string name="notification_resume">Alle fortsetzen</string>
+    <string name="nav_stats">Status</string>
+    <string name="nav_focus">Fokus</string>
 </resources>
