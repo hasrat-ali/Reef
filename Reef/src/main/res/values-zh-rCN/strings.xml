@@ -8,7 +8,7 @@
     <plurals name="whitelisted_apps">
         <item quantity="other">%1$s 允许的仪器</item>
     </plurals>
-    <string name="avg_daily">Avg. Daily</string>
+    <string name="avg_daily">每日平均</string>
     <string name="peak_usage">高峰使用</string>
     <string name="routines_desc">时间表重点会议</string>
     <string name="block_entirely">整顿</string>
