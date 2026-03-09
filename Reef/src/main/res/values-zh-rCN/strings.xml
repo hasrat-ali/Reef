@@ -45,9 +45,9 @@
     <string name="min_suffix">分钟</string>
     <string name="cycles_suffix">周期</string>
     <string name="notifications_section">通知</string>
-    <string name="sound">声音</string>
-    <string name="sound_description">在阶段切换时播放声音</string>
-    <string name="choose_sound">选择声音</string>
+    <string name="sound">铃声</string>
+    <string name="sound_description">在专注和休息阶段切换时播放提示音</string>
+    <string name="choose_sound">选择提示音</string>
     <string name="choose_sound_description">选择通知铃声</string>
     <string name="vibration">震动</string>
     <string name="vibration_description">在阶段切换时震动</string>
@@ -58,10 +58,10 @@
     <string name="auto_start_focus">自动开启专注</string>
     <string name="auto_start_focus_description">休息结束时自动开始专注</string>
     <string name="transition_sound">切换音效</string>
-    <string name="transition_sound_description">在阶段之间播放声音</string>
+    <string name="transition_sound_description">在专注和休息阶段之间播放提示音</string>
     <string name="transition_vibration">切换震动</string>
     <string name="transition_vibration_description">在阶段切换时震动</string>
-    <string name="select_sound">选择声音</string>
+    <string name="select_sound">选择提示音</string>
     <string name="select_sound_description">选择一个通知音效</string>
     <string name="notifications">通知</string>
     <string name="notifications_subtitle">配置提醒与通知项</string>
@@ -152,7 +152,7 @@
     <string name="strict_mode">严格模式</string>
     <string name="flexible_mode">温和模式</string>
     <string name="no_pausing_allowed">不允许暂停</string>
-    <string name="pause_resume_anytime">可随时暂停与恢复</string>
+    <string name="pause_resume_anytime">可随时暂停与继续</string>
     <string name="focus_label">专注</string>
     <string name="short_break_label">短休</string>
     <string name="long_break_label">长休</string>
@@ -259,7 +259,7 @@
     <string name="notification_permission">通知权限</string>
     <string name="notification_permission_description">请授予通知权限以继续使用。</string>
     <string name="battery_optimization_exception">忽略电池优化权限</string>
-    <string name="battery_optimization_exception_description">请授予电池优化白名单权限以继续使用。</string>
+    <string name="battery_optimization_exception_description">请授予忽略电池优化权限以继续使用。</string>
     <string name="whitelist_apps">应用白名单</string>
     <string name="set_limit">设置限额</string>
     <string name="remove_limit">移除限额</string>
